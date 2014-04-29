@@ -70,9 +70,10 @@ module DeployKey
         :key => key
       }.to_json
     response = request(:post, url, body)
-    unless Net::HTTPOK      === response ||
-           Net::HTTPCreated === response
-      raise "Could not add SSH key #{new_resource.label} to Bitbucket: #{response.code} #{response.body}"
+    unless Net::HTTPOK === response || Net::HTTPCreated === response
+      unless response.body.include?('key is already in use')
+        raise "Could not add SSH key #{new_resource.label} to Bitbucket: #{response.code} #{response.body}"
+      end
     end
     response
   end
